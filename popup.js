@@ -1,18 +1,17 @@
-document.getElementById('clearCookies').addEventListener('click', () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-        chrome.scripting.executeScript({
-            target: { tabId: tabs[0].id },
-            function: clearCookies
-        });
-    });
+document.getElementById("toggleEdit").addEventListener("click", async () => {
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    files: ["content.js"]
+  });
 });
 
-function clearCookies() {
-    chrome.cookies.getAll({ url: window.location.href }, function(cookies) {
-        for (let cookie of cookies) {
-            let url = "http" + (cookie.secure ? "s" : "") + "://" + cookie.domain + cookie.path;
-            chrome.cookies.remove({ url: url, name: cookie.name });
-        }
-    });
-    alert("Cookies supprimés pour ce site !");
-}
+document.getElementById("injectCss").addEventListener("click", async () => {
+  let cssCode = document.getElementById("cssInput").value;
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  chrome.scripting.insertCSS({
+    target: { tabId: tab.id },
+    css: cssCode
+  });
+});
